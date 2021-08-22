@@ -79,12 +79,12 @@ const Physics = (entities, { touches, time, dispatch }) => {
   const engine = entities.physics.engine;
   const birdBody = entities.bird.body;
   const world = entities.physics.world;
-  //update bird image
+  // update bird image
   // const state = getBirdState();
   // if (entities.bird.pose != state) {
   //   entities.bird.pose = state;
   // }
-  Matter.Engine.update(engine, time.delta);
+  Matter.Engine.update(engine, SPEED);
   let hasTouches = false;
   touches
     .filter((t) => t.type === "press")
@@ -134,10 +134,12 @@ const Physics = (entities, { touches, time, dispatch }) => {
       Matter.Body.translate(entities["pipeUpTop" + i].body, { x: -3, y: 0 });
       Matter.Body.translate(entities["pipeDownTop" + i].body, { x: -3, y: 0 });
     }
+    // console.log(`${firstPipeVisible} ${lastPipeVisible} ${lastPipeVisible - firstPipeVisible}`)
     const pipeScore = entities["pipeUpTop" + score];
     if (
       pipeScore != undefined &&
-      pipeScore.body.position.x <= birdBody.position.x
+      pipeScore.body.position.x <= birdBody.position.x &&
+      birdBody.position.y >= 0
     ) {
       score++;
       dispatch({ type: "score" });

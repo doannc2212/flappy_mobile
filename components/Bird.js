@@ -40,6 +40,7 @@ export default Bird = (props) => {
       }}
       resizeMode="stretch"
       source={image}
+      fadeDuration={0}
     />
   );
 };
