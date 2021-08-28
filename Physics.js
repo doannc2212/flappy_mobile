@@ -1,5 +1,5 @@
 import Matter from "matter-js";
-import { Pipe, PipeTop } from "./components/Pipe";
+import { PipeBottom, PipeTop } from "./components/Pipe";
 import React from "react";
 import {
   GAP_WIDTH,
@@ -19,59 +19,33 @@ const addPipes = (x, world, entities) => {
   if (lastPipeVisible > numberOfPipes - 1) return;
 
   let [pipe1Height, pipe2Height] = listOfPipes[lastPipeVisible];
-  const pipeTopWith = PIPE_WIDTH + Math.floor(PIPE_WIDTH / 5);
-  const pipeTopHeight = (pipeTopWith * 12) / 26;
-  pipe1Height = pipe1Height - pipeTopHeight;
 
-  const pipe1Top = Matter.Bodies.rectangle(
+  const pipeBottom = Matter.Bodies.rectangle(
     x,
-    pipe1Height + pipeTopHeight / 2,
-    pipeTopWith,
-    pipeTopHeight,
+    MAX_HEIGHT - pipe2Height / 2 - GROUND_HEIGHT,
+    PIPE_WIDTH,
+    pipe2Height,
     { isStatic: true }
   );
-  const pipe1 = Matter.Bodies.rectangle(
+
+  const pipeTop = Matter.Bodies.rectangle(
     x,
     pipe1Height / 2,
     PIPE_WIDTH,
     pipe1Height,
     { isStatic: true }
   );
-
-  pipe2Height = pipe2Height - pipeTopHeight;
-  const pipe2Top = Matter.Bodies.rectangle(
-    x,
-    MAX_HEIGHT - GROUND_HEIGHT - pipe2Height - pipeTopHeight / 2,
-    pipeTopWith,
-    pipeTopHeight,
-    { isStatic: true }
-  );
-  const pipe2 = Matter.Bodies.rectangle(
-    x,
-    MAX_HEIGHT - GROUND_HEIGHT - pipe2Height / 2,
-    PIPE_WIDTH,
-    pipe2Height,
-    { isStatic: true }
-  );
-
-  Matter.Composite.add(world, [pipe1, pipe2, pipe1Top, pipe2Top]);
-
-  entities["pipeUp" + lastPipeVisible] = {
-    body: pipe1,
-    renderer: <Pipe />,
+  entities["pipeBottom" + lastPipeVisible] = {
+    body: pipeBottom,
+    renderer: <PipeBottom />,
   };
-  entities["pipeDown" + lastPipeVisible] = {
-    body: pipe2,
-    renderer: <Pipe />,
-  };
-  entities["pipeUpTop" + lastPipeVisible] = {
-    body: pipe1Top,
+  entities["pipeTop" + lastPipeVisible] = {
+    body: pipeTop,
     renderer: <PipeTop />,
   };
-  entities["pipeDownTop" + lastPipeVisible] = {
-    body: pipe2Top,
-    renderer: <PipeTop />,
-  };
+
+  Matter.Composite.add(world, [pipeBottom, pipeTop]);
+
   lastPipeVisible++;
 };
 
@@ -84,7 +58,7 @@ const Physics = (entities, { touches, time, dispatch }) => {
   // if (entities.bird.pose != state) {
   //   entities.bird.pose = state;
   // }
-  Matter.Engine.update(engine, SPEED);
+  
   let hasTouches = false;
   touches
     .filter((t) => t.type === "press")
@@ -111,31 +85,31 @@ const Physics = (entities, { touches, time, dispatch }) => {
   if (world.gravity.y !== 0.0) {
     //delete pipe
     if (
-      entities["pipeDownTop" + firstPipeVisible].body.position.x <=
+      entities["pipeTop" + firstPipeVisible].body.position.x <=
       -PIPE_WIDTH / 2
     ) {
-      delete entities["pipeUp" + firstPipeVisible];
-      delete entities["pipeDown" + firstPipeVisible];
-      delete entities["pipeUpTop" + firstPipeVisible];
-      delete entities["pipeDownTop" + firstPipeVisible];
+      Matter.Composite.remove(world, [
+        entities["pipeTop" + firstPipeVisible].body,
+        entities["pipeBottom" + firstPipeVisible].body,
+      ]);
+      delete entities["pipeTop" + firstPipeVisible];
+      delete entities["pipeBottom" + firstPipeVisible];
+
       firstPipeVisible++;
     }
     //add pipe
     if (
-      entities["pipeDownTop" + (lastPipeVisible - 1)].body.position.x <=
+      entities["pipeTop" + (lastPipeVisible - 1)].body.position.x <=
       MAX_WIDTH - GAP_WIDTH - PIPE_WIDTH / 2
     ) {
       addPipes(MAX_WIDTH + PIPE_WIDTH / 2, world, entities);
     }
     // translate pipe, delete pipe
     for (let i = firstPipeVisible; i < lastPipeVisible; i++) {
-      Matter.Body.translate(entities["pipeUp" + i].body, { x: -3, y: 0 });
-      Matter.Body.translate(entities["pipeDown" + i].body, { x: -3, y: 0 });
-      Matter.Body.translate(entities["pipeUpTop" + i].body, { x: -3, y: 0 });
-      Matter.Body.translate(entities["pipeDownTop" + i].body, { x: -3, y: 0 });
+      Matter.Body.translate(entities["pipeTop" + i].body, { x: -3, y: 0 });
+      Matter.Body.translate(entities["pipeBottom" + i].body, { x: -3, y: 0 });
     }
-    // console.log(`${firstPipeVisible} ${lastPipeVisible} ${lastPipeVisible - firstPipeVisible}`)
-    const pipeScore = entities["pipeUpTop" + score];
+    const pipeScore = entities["pipeTop" + score];
     if (
       pipeScore != undefined &&
       pipeScore.body.position.x <= birdBody.position.x &&
@@ -162,6 +136,8 @@ const Physics = (entities, { touches, time, dispatch }) => {
   Matter.Events.on(engine, "collisionStart", (event) => {
     dispatch({ type: "game-over" });
   });
+
+  Matter.Engine.update(engine, SPEED);
 
   return entities;
 };
