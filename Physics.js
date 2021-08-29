@@ -58,7 +58,8 @@ const Physics = (entities, { touches, time, dispatch }) => {
   // if (entities.bird.pose != state) {
   //   entities.bird.pose = state;
   // }
-  
+
+
   let hasTouches = false;
   touches
     .filter((t) => t.type === "press")
@@ -73,6 +74,11 @@ const Physics = (entities, { touches, time, dispatch }) => {
           score = 0;
           //add first pipe
           addPipes(MAX_WIDTH + PIPE_WIDTH / 2, world, entities);
+          addPipes(
+            MAX_WIDTH + PIPE_WIDTH / 2 + PIPE_WIDTH + GAP_WIDTH,
+            world,
+            entities
+          );
         }
         hasTouches = true;
         Matter.Body.setVelocity(birdBody, {
@@ -92,18 +98,23 @@ const Physics = (entities, { touches, time, dispatch }) => {
         entities["pipeTop" + firstPipeVisible].body,
         entities["pipeBottom" + firstPipeVisible].body,
       ]);
+
+      // add new pipe
+      const posX = entities["pipeTop" + (lastPipeVisible - 1)].body.position.x;
+      addPipes(posX + PIPE_WIDTH + GAP_WIDTH, world, entities);
+
       delete entities["pipeTop" + firstPipeVisible];
       delete entities["pipeBottom" + firstPipeVisible];
 
       firstPipeVisible++;
     }
     //add pipe
-    if (
-      entities["pipeTop" + (lastPipeVisible - 1)].body.position.x <=
-      MAX_WIDTH - GAP_WIDTH - PIPE_WIDTH / 2
-    ) {
-      addPipes(MAX_WIDTH + PIPE_WIDTH / 2, world, entities);
-    }
+    // if (
+    //   entities["pipeTop" + (lastPipeVisible - 1)].body.position.x <=
+    //   MAX_WIDTH - GAP_WIDTH - PIPE_WIDTH / 2
+    // ) {
+    //   addPipes(MAX_WIDTH + PIPE_WIDTH / 2, world, entities);
+    // }
     // translate pipe, delete pipe
     for (let i = firstPipeVisible; i < lastPipeVisible; i++) {
       Matter.Body.translate(entities["pipeTop" + i].body, { x: -3, y: 0 });

@@ -19,6 +19,7 @@ export const PipeBottom = (props) => {
           height: pipeHeight,
         }}
         source={require("../assets/images/pipe.png")}
+        fadeDuration={0}
       />
       <Image
         style={{
@@ -30,6 +31,7 @@ export const PipeBottom = (props) => {
           height: pipeTopHeight,
         }}
         source={require("../assets/images/pipe_top.png")}
+        fadeDuration={0}
       />
     </View>
   );
@@ -53,6 +55,7 @@ export const PipeTop = (props) => {
           height: pipeHeight,
         }}
         source={require("../assets/images/pipe.png")}
+        fadeDuration={0}
       />
       <Image
         style={{
@@ -64,6 +67,7 @@ export const PipeTop = (props) => {
           height: pipeTopHeight,
         }}
         source={require("../assets/images/pipe_top.png")}
+        fadeDuration={0}
       />
     </View>
   );

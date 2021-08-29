@@ -18,7 +18,7 @@ const generatePipe = () => {
   if (Math.random() < 0.5) size.reverse;
   return size;
 };
-export const numberOfPipes = 10;
+export const numberOfPipes = 100;
 const createPipes = () => {
   const listOfPipes = [];
   for (let i = 0; i < numberOfPipes; i++) {

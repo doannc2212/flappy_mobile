@@ -15,6 +15,7 @@ const Ground = (props) => {
         height: height,
       }}
       source={require("../assets/images/flappybird-bg-brow.png")}
+      fadeDuration={0}
     />
   );
 };
