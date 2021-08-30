@@ -24,7 +24,7 @@ export default Bird = (props) => {
   let animatedValue = new Animated.Value(props.body.velocity.y);
   animatedValue.setValue(props.body.velocity.y);
   let rotation = animatedValue.interpolate({
-    inputRange: [-20, -10, 0, 10, 20],
+    inputRange: [-15, -5, 0, 5, 15],
     outputRange: ["-50deg", "-25deg", "0deg", "20deg", "50deg"],
     extrapolate: "clamp",
   });

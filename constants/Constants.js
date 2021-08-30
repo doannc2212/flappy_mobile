@@ -8,5 +8,5 @@ export const PIPE_WIDTH = 50;
 export const BIRD_WIDTH = 30;
 export const BIRD_HEIGHT = 24;
 export const GROUND_HEIGHT = 100;
-export const SPEED = 45;
+export const SPEED = 25;
 export const MIN_PIPE_HEIGHT = 100;
