@@ -19,92 +19,6 @@ let entitiesG;
 let hasSetEntitiesG = false;
 let gameOver = true;
 const listOfPipes = createPipes();
-const addPipes = (x, world, entities) => {
-  if (lastPipeVisible > numberOfPipes - 1) return;
-
-  let [pipe1Height, pipe2Height] = listOfPipes[lastPipeVisible];
-
-  const pipeBottom = Matter.Bodies.rectangle(
-    x,
-    MAX_HEIGHT - pipe2Height / 2 - GROUND_HEIGHT,
-    PIPE_WIDTH,
-    pipe2Height,
-    { isStatic: true }
-  );
-
-  const pipeTop = Matter.Bodies.rectangle(
-    x,
-    pipe1Height / 2,
-    PIPE_WIDTH,
-    pipe1Height,
-    { isStatic: true }
-  );
-  entities["pipeBottom" + lastPipeVisible] = {
-    body: pipeBottom,
-    renderer: <PipeBottom />,
-  };
-  entities["pipeTop" + lastPipeVisible] = {
-    body: pipeTop,
-    renderer: <PipeTop />,
-  };
-
-  Matter.Composite.add(world, [pipeBottom, pipeTop]);
-
-  lastPipeVisible++;
-};
-
-let time = setInterval(() => {
-  if (entitiesG !== undefined) {
-    const engine = entitiesG.physics.engine;
-    const world = entitiesG.physics.world;
-    
-
-    // translate ground
-    for (let i = 1; i <= 2; i++) {
-      const body = entitiesG["ground" + i].body;
-      if (body.position.x <= -MAX_WIDTH / 2) {
-        Matter.Body.setPosition(body, {
-          x: MAX_WIDTH + MAX_WIDTH / 2,
-          y: body.position.y,
-        });
-      } else {
-        Matter.Body.translate(body, { x: -3, y: 0 });
-      }
-    }
-    if (world.gravity.y !== 0.0) {
-      //delete pipe
-      if (
-        entitiesG["pipeTop" + firstPipeVisible].body.position.x <=
-        -PIPE_WIDTH / 2
-      ) {
-        Matter.Composite.remove(world, [
-          entitiesG["pipeTop" + firstPipeVisible].body,
-          entitiesG["pipeBottom" + firstPipeVisible].body,
-        ]);
-
-        // add new pipe
-        const posX =
-          entitiesG["pipeTop" + (lastPipeVisible - 1)].body.position.x;
-        addPipes(posX + PIPE_WIDTH + GAP_WIDTH, world, entitiesG);
-
-        delete entitiesG["pipeTop" + firstPipeVisible];
-        delete entitiesG["pipeBottom" + firstPipeVisible];
-
-        firstPipeVisible++;
-      }
-
-      for (let i = firstPipeVisible; i < lastPipeVisible; i++) {
-        Matter.Body.translate(entitiesG["pipeTop" + i].body, { x: -3, y: 0 });
-        Matter.Body.translate(entitiesG["pipeBottom" + i].body, {
-          x: -3,
-          y: 0,
-        });
-      }
-    }
-
-    Matter.Engine.update(engine, SPEED);
-  }
-}, SPEED);
 
 const Physics = (entities, { touches, time, dispatch }) => {
   const engine = entities.physics.engine;
@@ -199,8 +113,10 @@ const Physics = (entities, { touches, time, dispatch }) => {
       const pair = pairs[i];
       if (pair.bodyA === entities["bird"].body && !gameOver) {
         dispatch({ type: "game-over" });
-        hasSetEntitiesG = false;
         gameOver = true;
+        hasSetEntitiesG = false;
+        deleteAllPipe();
+        world.gravity.y = 0.0;
       }
     }
   });
@@ -208,6 +124,107 @@ const Physics = (entities, { touches, time, dispatch }) => {
   // Matter.Engine.update(engine, SPEED);
 
   return entities;
+};
+
+const addPipes = (x, world, entities) => {
+  if (lastPipeVisible > numberOfPipes - 1) return;
+
+  let [pipe1Height, pipe2Height] = listOfPipes[lastPipeVisible];
+
+  const pipeBottom = Matter.Bodies.rectangle(
+    x,
+    MAX_HEIGHT - pipe2Height / 2 - GROUND_HEIGHT,
+    PIPE_WIDTH,
+    pipe2Height,
+    { isStatic: true }
+  );
+
+  const pipeTop = Matter.Bodies.rectangle(
+    x,
+    pipe1Height / 2,
+    PIPE_WIDTH,
+    pipe1Height,
+    { isStatic: true }
+  );
+  entities["pipeBottom" + lastPipeVisible] = {
+    body: pipeBottom,
+    renderer: <PipeBottom />,
+  };
+  entities["pipeTop" + lastPipeVisible] = {
+    body: pipeTop,
+    renderer: <PipeTop />,
+  };
+
+  Matter.Composite.add(world, [pipeBottom, pipeTop]);
+
+  lastPipeVisible++;
+};
+
+let time = setInterval(() => {
+  if (entitiesG !== undefined && hasSetEntitiesG) {
+    const engine = entitiesG.physics.engine;
+    const world = entitiesG.physics.world;
+
+    // translate ground
+    for (let i = 1; i <= 2; i++) {
+      const body = entitiesG["ground" + i].body;
+      if (body.position.x <= -MAX_WIDTH / 2) {
+        Matter.Body.setPosition(body, {
+          x: MAX_WIDTH + MAX_WIDTH / 2,
+          y: body.position.y,
+        });
+      } else {
+        Matter.Body.translate(body, { x: -3, y: 0 });
+      }
+    }
+    if (world.gravity.y !== 0.0) {
+      //delete pipe
+      if (
+        entitiesG["pipeTop" + firstPipeVisible].body.position.x <=
+        -PIPE_WIDTH / 2
+      ) {
+        Matter.Composite.remove(world, [
+          entitiesG["pipeTop" + firstPipeVisible].body,
+          entitiesG["pipeBottom" + firstPipeVisible].body,
+        ]);
+
+        // add new pipe
+        const posX =
+          entitiesG["pipeTop" + (lastPipeVisible - 1)].body.position.x;
+        addPipes(posX + PIPE_WIDTH + GAP_WIDTH, world, entitiesG);
+
+        delete entitiesG["pipeTop" + firstPipeVisible];
+        delete entitiesG["pipeBottom" + firstPipeVisible];
+
+        firstPipeVisible++;
+      }
+
+      for (let i = firstPipeVisible; i < lastPipeVisible; i++) {
+        Matter.Body.translate(entitiesG["pipeTop" + i].body, { x: -3, y: 0 });
+        Matter.Body.translate(entitiesG["pipeBottom" + i].body, {
+          x: -3,
+          y: 0,
+        });
+      }
+    }
+
+    Matter.Engine.update(engine, SPEED);
+  }
+}, SPEED);
+
+const deleteAllPipe = () => {
+  const world = entitiesG.physics.world;
+  for (let i = firstPipeVisible; i < lastPipeVisible; i++) {
+    Matter.Composite.remove(world, [
+      entitiesG["pipeTop" + i].body,
+      entitiesG["pipeBottom" + i].body,
+    ]);
+
+    delete entitiesG["pipeTop" + i];
+    delete entitiesG["pipeBottom" + i];
+  }
+  lastPipeVisible = 0;
+  firstPipeVisible = 0;
 };
 
 let tick = 0;
