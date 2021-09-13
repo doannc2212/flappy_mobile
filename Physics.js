@@ -7,9 +7,11 @@ import {
   MAX_HEIGHT,
   MAX_WIDTH,
   PIPE_WIDTH,
+  SERVER_URL,
   SPEED,
 } from "./constants/Constants";
 import createPipes, { numberOfPipes } from "./CreatePipes";
+import connection from "./Connection";
 
 let lastPipeVisible = 0;
 let firstPipeVisible = 0;
@@ -17,10 +19,13 @@ let score = 0;
 
 let entitiesGameEngine;
 let hasSetEntitiesGameEngine = false;
-let gameOver = true;
+let playing = false;
 const listOfPipes = createPipes();
 const numberOfPipesOnScreen = Math.ceil(MAX_WIDTH / GAP_WIDTH);
 
+connection.on("UserDead", (user) => {
+  console.log(user);
+});
 
 const Physics = (entities, { touches, time, dispatch }) => {
   const engine = entities.physics.engine;
@@ -41,16 +46,18 @@ const Physics = (entities, { touches, time, dispatch }) => {
     .filter((t) => t.type === "press")
     .forEach((t) => {
       if (!hasTouches) {
-        if (world.gravity.y === 0.0) {
-          world.gravity.y = 1;
+        if (!playing) {
+          // world.gravity.y = 1;
 
           //reset state
           lastPipeVisible = 0;
           firstPipeVisible = 0;
           score = 0;
           entitiesGameEngine = entities;
-          gameOver = false;
+          playing = true;
 
+          Matter.Body.setStatic(birdBody, false);
+          // birdBody.isStatic = false;
           // add pipe
           for (let i = 0; i < numberOfPipesOnScreen; i++) {
             addPipes(
@@ -68,7 +75,7 @@ const Physics = (entities, { touches, time, dispatch }) => {
       }
     });
 
-  if (world.gravity.y !== 0.0) {
+  if (playing) {
     const pipeScore = entities["pipeTop" + score];
     if (
       pipeScore != undefined &&
@@ -84,16 +91,15 @@ const Physics = (entities, { touches, time, dispatch }) => {
     const pairs = event.pairs;
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
-      if (pair.bodyA === entities["bird"].body && !gameOver) {
+      if (pair.bodyA === entities["bird"].body && playing) {
         dispatch({ type: "game-over" });
-        gameOver = true;
         hasSetEntitiesGameEngine = false;
+        playing = false;
         deleteAllPipe();
-        world.gravity.y = 0.0;
+        Matter.Composite.remove(world, [birdBody]);
       }
     }
   });
-
 
   return entities;
 };
@@ -149,7 +155,7 @@ let time = setInterval(() => {
         Matter.Body.translate(body, { x: -3, y: 0 });
       }
     }
-    if (world.gravity.y !== 0.0) {
+    if (playing) {
       //delete pipe
       if (
         entitiesGameEngine["pipeTop" + firstPipeVisible].body.position.x <=
@@ -172,7 +178,10 @@ let time = setInterval(() => {
       }
 
       for (let i = firstPipeVisible; i < lastPipeVisible; i++) {
-        Matter.Body.translate(entitiesGameEngine["pipeTop" + i].body, { x: -3, y: 0 });
+        Matter.Body.translate(entitiesGameEngine["pipeTop" + i].body, {
+          x: -3,
+          y: 0,
+        });
         Matter.Body.translate(entitiesGameEngine["pipeBottom" + i].body, {
           x: -3,
           y: 0,

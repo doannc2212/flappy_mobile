@@ -1,6 +1,7 @@
 import React from "react";
 import Ground from "./components/Ground";
 import Bird from "./components/Bird";
+import BlueBird from "./components/BlueBird";
 import {
   BIRD_HEIGHT,
   BIRD_WIDTH,
@@ -21,7 +22,8 @@ const setupWorld = () => {
   const bird = Matter.Bodies.circle(
     MAX_WIDTH / 2,
     MAX_HEIGHT / 2,
-    Math.floor(Math.min(BIRD_HEIGHT / 2, BIRD_WIDTH / 2))
+    Math.floor(Math.min(BIRD_HEIGHT / 2, BIRD_WIDTH / 2)),
+    { isStatic: true }
   );
 
   const ground1 = Matter.Bodies.rectangle(
@@ -55,6 +57,19 @@ const setupWorld = () => {
     body: ground2,
     renderer: <Ground />,
   };
+
+  //other bird
+  // const bird2 = Matter.Bodies.circle(
+  //   MAX_WIDTH / 2,
+  //   MAX_HEIGHT / 2,
+  //   Math.floor(Math.min(BIRD_HEIGHT / 2, BIRD_WIDTH / 2)),
+  //   { isStatic: true }
+  // );
+  // result["bird2"] = {
+  //   body: bird2,
+  //   pose: "up",
+  //   renderer: <BlueBird />,
+  // };
 
   Matter.Composite.add(world, [bird, ground1, ground2]);
 

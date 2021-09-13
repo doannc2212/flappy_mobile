@@ -13,6 +13,7 @@ import setupWorld from "./World";
 import { useFonts } from "expo-font";
 import { getPlayerName, getScore, saveScore, storePlayerName } from "./db";
 import { NameModal, TopScoreModel } from "./components/Modal";
+import connection from "./Connection";
 
 const topScoreList = [
   { id: 1, name: "Devin", score: 10 },
@@ -28,7 +29,14 @@ const topScoreList = [
 ];
 
 let bestScore = 0;
-const entities = setupWorld();
+let entities = setupWorld();
+
+connection.start().then(() => {
+  connection.invoke("startGame", "user testing").catch((err) => {
+    return console.error(err.toString());
+  });
+  console.log("Server connected");
+});
 
 export default function App() {
   let [fontsLoaded] = useFonts({
@@ -50,6 +58,8 @@ export default function App() {
     })();
   }, []);
 
+  entities.physics.engine.gravity.y = 1;
+
   const onEvent = (e) => {
     if (e.type === "game-over") {
       if (score > bestScore) {
@@ -66,7 +76,8 @@ export default function App() {
   const reset = () => {
     setRunning(true);
     setScore(0);
-    gameEngine.swap(setupWorld());
+    entities = setupWorld();
+    gameEngine.swap(entities);
   };
 
   const submitPlayerName = () => {
@@ -109,16 +120,16 @@ export default function App() {
                 <Text style={styles.scoreText}>Best</Text>
                 <Text style={styles.scoreWhenGameOver}>{bestScore}</Text>
               </View>
-              <TextButton
-                style={{ margin: 10, marginTop: 50 }}
+              {/* <TextButton
+                style={{ margin: 10 }}
                 onPress={() => {
                   setNameModalVisible(true);
                 }}
                 text="ADD TO LEADERBOARD"
-              />
+              /> */}
               <TextButton
                 onPress={reset}
-                style={{ margin: 10 }}
+                style={{ margin: 10, marginTop: 50 }}
                 text="Play Again"
               />
             </View>

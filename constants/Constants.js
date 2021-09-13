@@ -10,3 +10,4 @@ export const BIRD_HEIGHT = 24;
 export const GROUND_HEIGHT = 100;
 export const SPEED = 25;
 export const MIN_PIPE_HEIGHT = 100;
+export const SERVER_URL = "https://bc7a-2001-ee0-4e54-8290-6174-97d1-42f-2a31.ngrok.io/dataHub";
