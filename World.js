@@ -29,14 +29,14 @@ const setupWorld = () => {
   const ground1 = Matter.Bodies.rectangle(
     MAX_WIDTH / 2,
     MAX_HEIGHT - GROUND_HEIGHT / 2,
-    MAX_WIDTH + 4,
+    MAX_WIDTH + 10,
     GROUND_HEIGHT,
     { isStatic: true }
   );
   const ground2 = Matter.Bodies.rectangle(
     MAX_WIDTH + MAX_WIDTH / 2,
     MAX_HEIGHT - GROUND_HEIGHT / 2,
-    MAX_WIDTH + 4,
+    MAX_WIDTH + 10,
     GROUND_HEIGHT,
     { isStatic: true }
   );

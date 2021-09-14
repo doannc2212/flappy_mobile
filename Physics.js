@@ -18,8 +18,8 @@ let firstPipeVisible = 0;
 let score = 0;
 
 let entitiesGameEngine;
-let hasSetEntitiesGameEngine = false;
 let playing = false;
+let startSystems = false;
 const listOfPipes = createPipes();
 const numberOfPipesOnScreen = Math.ceil(MAX_WIDTH / GAP_WIDTH);
 
@@ -27,7 +27,7 @@ connection.on("UserDead", (user) => {
   console.log(user);
 });
 
-const Physics = (entities, { touches, time, dispatch }) => {
+const Physics = (entities, { touches, time, dispatch, events }) => {
   const engine = entities.physics.engine;
   const birdBody = entities.bird.body;
   const world = entities.physics.world;
@@ -37,10 +37,12 @@ const Physics = (entities, { touches, time, dispatch }) => {
   //   entities.bird.pose = state;
   // }
 
-  if (!hasSetEntitiesGameEngine) {
-    hasSetEntitiesGameEngine = true;
-    entitiesGameEngine = entities;
-  }
+  events
+    .filter((t) => t.type === "started")
+    .forEach((t) => {
+      entitiesGameEngine = entities;
+      startSystems = true;
+    });
   let hasTouches = false;
   touches
     .filter((t) => t.type === "press")
@@ -57,7 +59,6 @@ const Physics = (entities, { touches, time, dispatch }) => {
           playing = true;
 
           Matter.Body.setStatic(birdBody, false);
-          // birdBody.isStatic = false;
           // add pipe
           for (let i = 0; i < numberOfPipesOnScreen; i++) {
             addPipes(
@@ -92,11 +93,11 @@ const Physics = (entities, { touches, time, dispatch }) => {
     for (let i = 0; i < pairs.length; i++) {
       const pair = pairs[i];
       if (pair.bodyA === entities["bird"].body && playing) {
-        dispatch({ type: "game-over" });
-        hasSetEntitiesGameEngine = false;
         playing = false;
+        startSystems = false;
         deleteAllPipe();
         Matter.Composite.remove(world, [birdBody]);
+        dispatch({ type: "game-over" });
       }
     }
   });
@@ -138,8 +139,8 @@ const addPipes = (x, world, entities) => {
   lastPipeVisible++;
 };
 
-let time = setInterval(() => {
-  if (entitiesGameEngine !== undefined && hasSetEntitiesGameEngine) {
+let interval = setInterval(() => {
+  if (entitiesGameEngine !== undefined && startSystems) {
     const engine = entitiesGameEngine.physics.engine;
     const world = entitiesGameEngine.physics.world;
 

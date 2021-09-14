@@ -8,8 +8,8 @@ const Ground = (props) => {
     <Image
       style={{
         position: "absolute",
-        top: props.body.position.y - height/2,
-        left: props.body.position.x - width/2,
+        top: props.body.position.y - height / 2,
+        left: props.body.position.x - width / 2,
         resizeMode: "stretch",
         width: width,
         height: height,
