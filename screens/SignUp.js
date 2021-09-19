@@ -26,41 +26,43 @@ const SignUp = () => {
       <View style={{ width: 300 }}>
         <Text
           style={{
-            fontSize: 22,
+            fontSize: 26,
             fontWeight: "bold",
             marginBottom: 80,
             alignSelf: "center",
+            color: "#FCA048",
           }}
         >
           Sign up
         </Text>
-
-        <InputTextField
-          title="User Name"
-          placeholderText="User name"
-          value={userName}
-          onChangeText={setUserName}
-        />
-        <InputTextField
-          style={{ marginTop: 20 }}
-          title="Password"
-          isSecure={true}
-          placeholderText="Password"
-          value={password}
-          onChangeText={setPassword}
-        />
-        <InputTextField
-          style={{ marginTop: 20, marginBottom: 10 }}
-          title="Confirm Password"
-          isSecure={true}
-          placeholderText="Confirm Password"
-          value={confirmPassword}
-          onChangeText={setConfirmPassword}
-        />
+        <View style={{ marginHorizontal: 5 }}>
+          <InputTextField
+            title="User Name"
+            placeholderText="User name"
+            value={userName}
+            onChangeText={setUserName}
+          />
+          <InputTextField
+            style={{ marginTop: 20 }}
+            title="Password"
+            isSecure={true}
+            placeholderText="Password"
+            value={password}
+            onChangeText={setPassword}
+          />
+          <InputTextField
+            style={{ marginTop: 20, marginBottom: 10 }}
+            title="Confirm Password"
+            isSecure={true}
+            placeholderText="Confirm Password"
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+        </View>
 
         <TouchableOpacity
           style={{
-            backgroundColor: "#2E94DF",
+            backgroundColor: "#FCA048",
             padding: 10,
             marginTop: 10,
             borderRadius: 10,
@@ -70,7 +72,6 @@ const SignUp = () => {
           activeOpacity={0.7}
           onPress={() => {
             if (validate()) {
-              console.log(validate());
               signUp(userName, password);
             }
           }}

@@ -5,86 +5,14 @@ import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   FlatList,
 } from "react-native";
-import { useFonts } from "expo-font";
-import { MAX_WIDTH } from "../constants/Constants";
-
-export const NameModal = (props) => {
-  let [fontsLoaded] = useFonts({
-    qahiri: require("../assets/fonts/Qahiri.ttf"),
-    pressStart: require("../assets/fonts/PressStart2P.ttf"),
-  });
-
-  const [errorMessage, setErrorMessage] = useState("");
-  useEffect(() => {
-    setErrorMessage("");
-  }, []);
-  return (
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={props.modalVisible}
-      onRequestClose={() => {
-        props.setModalVisible(!props.modalVisible);
-      }}
-    >
-      <View style={styles.centeredView}>
-        <View style={styles.modalView}>
-          <Text style={styles.modalText}>Your scored</Text>
-          <Text style={styles.modalScoreText}>{props.score}</Text>
-          <TextInput
-            onChangeText={(text) => {
-              props.onTextChange(text);
-              setErrorMessage("");
-            }}
-            value={props.textInput}
-            style={styles.input}
-            placeholder="Enter your name"
-          />
-          <Text
-            style={{
-              color: "red",
-              alignContent: "flex-start",
-              alignSelf: "stretch",
-            }}
-          >
-            {errorMessage}
-          </Text>
-          <View
-            style={{
-              flexDirection: "row-reverse",
-              alignContent: "flex-end",
-              alignSelf: "stretch",
-            }}
-          >
-            <Button
-              title="Submit"
-              style={styles.buttonSubmit}
-              onPress={() => {
-                if (props.textInput === "") {
-                  setErrorMessage("Please enter your name");
-                } else {
-                  setErrorMessage("");
-                  props.onSubmit();
-                }
-              }}
-            />
-            <Button
-              title="Cancel"
-              onPress={() => props.setModalVisible(!props.modalVisible)}
-              style={styles.buttonCancel}
-            />
-          </View>
-        </View>
-      </View>
-    </Modal>
-  );
-};
+import { MAX_HEIGHT, MAX_WIDTH } from "../constants/Constants";
 
 export const TopScoreModel = (props) => {
-  const renderItem = ({ item }) => <Item name={item.name} score={item.score} />;
+  const renderItem = ({ item }) => (
+    <Item name={item.name} score={item.score} rank={item.id} />
+  );
 
   return (
     <Modal
@@ -98,10 +26,10 @@ export const TopScoreModel = (props) => {
       <View style={styles.centeredView}>
         <View style={styles.flatListView}>
           <Text style={{ fontWeight: "bold", fontSize: 20, color: "#ff6f00" }}>
-            Flappy Bird Leaderboard
+            Flappy Bird Rank
           </Text>
-          <Text style={{ fontWeight: "bold", fontSize: 15 }}>
-            Top 10 scores
+          <Text style={{ fontWeight: "bold", fontSize: 15 , marginTop: 10}}>
+            Your name: {props.userName}
           </Text>
           <View
             style={{
@@ -112,8 +40,27 @@ export const TopScoreModel = (props) => {
               marginTop: 10,
             }}
           />
+
+          <View
+            style={{
+              flexDirection: "row",
+              alignSelf: "stretch",
+              marginHorizontal: 10,
+              marginBottom: 10,
+            }}
+          >
+            <Text style={[{ width: 55 }, styles.textBold]}>Rank</Text>
+            <Text style={[{ flex: 1, marginStart: 10 }, styles.textBold]}>
+              Name
+            </Text>
+            <Text style={[{ marginEnd: 10 }, styles.textBold]}>Score</Text>
+          </View>
+
           <FlatList
-            style={{ alignSelf: "stretch" }}
+            style={{
+              alignSelf: "stretch",
+              maxHeight: MAX_HEIGHT - MAX_WIDTH,
+            }}
             data={props.data}
             renderItem={renderItem}
             keyExtractor={(item) => `${item.id}`}
@@ -146,14 +93,16 @@ const Button = (props) => {
   );
 };
 
-const Item = ({ name, score }) => (
+const Item = ({ rank, name, score }) => (
   <View
     style={{
       flex: 1,
       flexDirection: "row",
       alignSelf: "stretch",
+      marginHorizontal: 15,
     }}
   >
+    <Text style={{ width: 50 }}>{rank}</Text>
     <Text style={{ flex: 1, marginStart: 10, fontSize: 15 }}>{name}</Text>
 
     <Text style={{ marginEnd: 10, fontSize: 15 }}>{score}</Text>
@@ -165,23 +114,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-  },
-  modalView: {
-    margin: 20,
-    backgroundColor: "white",
-    borderRadius: 10,
-    paddingTop: 20,
-    paddingRight: 20,
-    paddingLeft: 20,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
   },
   flatListView: {
     margin: 20,
@@ -199,35 +131,22 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: MAX_WIDTH - 100,
+    width: MAX_WIDTH - 50,
   },
   button: {
     borderRadius: 5,
     padding: 8,
+
     // elevation: 1,
   },
-  buttonSubmit: {
-    // backgroundColor: "#F194FF",
-    margin: 10,
-  },
+
   buttonCancel: {
     // backgroundColor: "#2196F3",
     margin: 10,
   },
-  modalText: {
-    textAlign: "center",
-    fontSize: 20,
+
+  textBold: {
     fontWeight: "bold",
-  },
-  modalScoreText: {
-    fontFamily: "qahiri",
-    textAlign: "center",
-    fontSize: 40,
-  },
-  input: {
-    height: 40,
-    borderWidth: 1,
-    padding: 10,
-    width: MAX_WIDTH - 100,
+    fontSize: 15,
   },
 });

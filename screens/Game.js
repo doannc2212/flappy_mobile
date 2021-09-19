@@ -13,18 +13,12 @@ import { GameEngine } from "react-native-game-engine";
 import Physics from "../Physics";
 import setupWorld from "../World";
 import { useFonts } from "expo-font";
-import { getScore, saveScore } from "../data";
-import { NameModal, TopScoreModel } from "../components/Modal";
+import { getScore, getUser, saveScore, topScoreList } from "../data";
+import { TopScoreModel } from "../components/Modal";
 import connection from "../Connection";
+import { setAllPlayerInvisible } from "../OtherPlayer";
 
 let bestScore = 0;
-export let isRunning = false;
-// connection.start().then(() => {
-//   connection.invoke("startGame", "user testing").catch((err) => {
-//     return console.error(err.toString());
-//   });
-//   console.log("Server connected");
-// });
 
 const Game = () => {
   let [fontsLoaded] = useFonts({
@@ -37,30 +31,47 @@ const Game = () => {
   const [gameEngine, setGameEngine] = useState(null);
   const [score, setScore] = useState(0);
   const [entities, setEntities] = useState(null);
-  // const [nameInput, setNameInput] = useState("");
-  // const [nameModalVisible, setNameModalVisible] = useState(false);
-  // const [topScoreVisible, setTopScoreVisible] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [topScoreVisible, setTopScoreVisible] = useState(false);
 
   useEffect(() => {
     getBestScore();
     setEntities(setupWorld());
-    isRunning = true;
-    // (async () => {
-    //   setNameInput(await getPlayerName());
-    // })();
+
+    (async () => {
+      const userInfo = await getUser();
+      if (userInfo !== null) {
+        setUserName(userInfo.user);
+      }
+    })();
   }, []);
   if (entities !== null) entities.physics.engine.gravity.y = 1;
   const onEvent = (e) => {
-    if (e.type === "game-over") {
-      if (score > bestScore) {
-        bestScore = score;
-        saveScore(score);
-      }
-      setRunning(false);
-      isRunning = false;
-      gameEngine.stop();
-    } else if (e.type === "score") {
-      setScore(score + 1);
+    switch (e.type) {
+      case "game-over":
+        if (score > bestScore) {
+          bestScore = score;
+          saveScore(score);
+        }
+        setRunning(false);
+        gameEngine.stop();
+
+        //
+        connection.invoke("DeadStatus").catch((e) => {
+          console.log(e);
+        });
+
+        setAllPlayerInvisible();
+        break;
+      case "score":
+        setScore(score + 1);
+        break;
+      case "birdUp":
+        connection.invoke("UpAction").catch((e) => {
+          console.log(e);
+        });
+        break;
+      default:
     }
   };
 
@@ -70,18 +81,8 @@ const Game = () => {
     gameEngine.swap(en);
     setRunning(true);
     setScore(0);
-
-    isRunning = true;
   };
 
-  // const submitPlayerName = () => {
-  //   storePlayerName(nameInput);
-  //   setNameModalVisible(false);
-
-  //   // get top score data
-
-  //   setTopScoreVisible(true);
-  // };
   if (!fontsLoaded) {
     return null;
   } else if (entities !== null) {
@@ -114,58 +115,38 @@ const Game = () => {
                 <Text style={styles.scoreText}>Best</Text>
                 <Text style={styles.scoreWhenGameOver}>{bestScore}</Text>
               </View>
-              {/* <TextButton
-                style={{ margin: 10 }}
+              <TextButton
+                style={{ margin: 10, marginTop: 30 }}
                 onPress={() => {
-                  setNameModalVisible(true);
+                  setTopScoreVisible(true);
                 }}
-                text="ADD TO LEADERBOARD"
-              /> */}
+                text="Rank"
+              />
               <TextButton
                 onPress={reset}
-                style={{ margin: 10, marginTop: 50 }}
+                style={{ margin: 10, marginTop: 20 }}
                 text="Play Again"
               />
               <TextButton
                 text="Sign out"
-                style={{ margin: 10 }}
+                style={{ margin: 10, marginTop: 20 }}
                 onPress={() => {
                   signOut();
                 }}
               />
             </View>
           )}
-          {/* <NameModal
-            modalVisible={nameModalVisible}
-            setModalVisible={setNameModalVisible}
-            textInput={nameInput}
-            onTextChange={setNameInput}
-            score={score}
-            onSubmit={submitPlayerName}
-          />
           <TopScoreModel
             modalVisible={topScoreVisible}
             setModalVisible={setTopScoreVisible}
             data={topScoreList}
-          /> */}
+            userName={userName}
+          />
         </ImageBackground>
       </View>
     );
   }
 };
-
-// const topScoreList = [
-//   { id: 1, name: "Devin", score: 10 },
-//   { id: 2, name: "Dan", score: 10 },
-//   { id: 3, name: "Dominic", score: 10 },
-//   { id: 4, name: "Jackson", score: 10 },
-//   { id: 5, name: "James", score: 10 },
-//   { id: 6, name: "Joel", score: 10 },
-//   { id: 7, name: "John", score: 10 },
-//   { id: 8, name: "Jillian", score: 10 },
-//   { id: 9, name: "Jimmy", score: 10 },
-//   { id: 10, name: "hieu", score: 10 },
-// ];
 
 const getBestScore = async () => {
   bestScore = await getScore();

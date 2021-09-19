@@ -1,3 +1,4 @@
+import connection from "./Connection";
 import {
   GAP_HEIGHT,
   GROUND_HEIGHT,
@@ -5,26 +6,36 @@ import {
   MIN_PIPE_HEIGHT,
 } from "./constants/Constants";
 
-const randomBetween = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1) + min);
-};
+export let pipes = [];
 
-const generatePipe = () => {
-  const topPipeHeight = randomBetween(MIN_PIPE_HEIGHT, MAX_HEIGHT / 2);
-  const bottomPipeHeight =
-    MAX_HEIGHT - topPipeHeight - GAP_HEIGHT - GROUND_HEIGHT;
-  const size = [topPipeHeight, bottomPipeHeight];
+export let numberOfPipes = 0;
 
-  if (Math.random() < 0.5) size.reverse;
-  return size;
-};
-export const numberOfPipes = 100;
-const createPipes = () => {
+connection.on("UpdateMap", (top, bottom) => {
+  const height = MAX_HEIGHT - GROUND_HEIGHT;
+  const pipesTop = top
+    .map(Math.round)
+    .map((item) => Math.round((item * height) / 100));
+  const pipesBottom = bottom
+    .map(Math.round)
+    .map((item) => Math.round((item * height) / 100));
+
+  numberOfPipes += 10;
+
   const listOfPipes = [];
-  for (let i = 0; i < numberOfPipes; i++) {
-    listOfPipes.push(generatePipe());
+  for (let i = 0; i < 10; i++) {
+    listOfPipes.push([pipesTop[i], pipesBottom[i]]);
   }
-  return listOfPipes;
-};
+  pipes = [...pipes, ...listOfPipes];
 
-export default createPipes;
+  console.log("num of pipes: " + numberOfPipes);
+});
+
+export const getPipes = () => {
+  connection.invoke("CallMap").catch((e) => {
+    console.log(e);
+  });
+};
+export const resetPipes = () => {
+  numberOfPipes = 0;
+  pipes = [];
+};

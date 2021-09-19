@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import InputTextField from "../components/InputTextField";
 import { AuthContext } from "../context";
 import Container from "./Container";
@@ -19,41 +19,37 @@ const Login = ({ navigation }) => {
   return (
     <Container>
       <View style={{ width: 300 }}>
-        <Text
-          style={{
-            fontSize: 22,
-            fontWeight: "bold",
-            marginBottom: 80,
-            alignSelf: "center",
-          }}
-        >
-          Flappy Bird
-        </Text>
-
-        <InputTextField
-          title="User Name"
-          placeholderText="User name"
-          value={userName}
-          onChangeText={setUserName}
-        />
-        <InputTextField
-          style={{ marginTop: 30, marginBottom: 5 }}
-          title="Password"
-          isSecure={true}
-          placeholderText="Password"
-          value={password}
-          onChangeText={setPassword}
+        <Image
+          style={{ marginBottom: 80, alignSelf: "center" }}
+          source={require("../assets/images/flappybird-logo.png")}
         />
 
+        <View style={{ marginHorizontal: 5 }}>
+          <InputTextField
+            title="User Name"
+            placeholderText="User name"
+            value={userName}
+            onChangeText={setUserName}
+          />
+          <InputTextField
+            style={{ marginTop: 30, marginBottom: 5 }}
+            title="Password"
+            isSecure={true}
+            placeholderText="Password"
+            value={password}
+            onChangeText={setPassword}
+          />
+        </View>
+
         <Text
-          style={{ marginVertical: 10, color: "#2E94DF", textAlign: "right" }}
+          style={{ marginVertical: 10, color: "#FCA048", textAlign: "right" }}
         >
           Forgot Password?
         </Text>
 
         <TouchableOpacity
           style={{
-            backgroundColor: "#2E94DF",
+            backgroundColor: "#FCA048",
             padding: 10,
             marginTop: 10,
             borderRadius: 10,
@@ -98,7 +94,7 @@ const Login = ({ navigation }) => {
               navigation.navigate("SignUp");
             }}
           >
-            <Text style={{ color: "#2E94DF", fontSize: 13, fontWeight: "600" }}>
+            <Text style={{ color: "#FCA048", fontSize: 13, fontWeight: "600" }}>
               Sign up
             </Text>
           </TouchableOpacity>
